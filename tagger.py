@@ -34,13 +34,13 @@ assert os.path.isdir(opts.model)
 assert os.path.isfile(opts.input)
 
 # Load existing model
-print "Loading model..."
+print("Loading model...")
 model = Model(model_path=opts.model)
 parameters = model.parameters
 
 # Load reverse mappings
 word_to_id, char_to_id, tag_to_id = [
-    {v: k for k, v in x.items()}
+    {v: k for k, v in list(x.items())}
     for x in [model.id_to_word, model.id_to_char, model.id_to_tag]
 ]
 
@@ -51,7 +51,7 @@ model.reload()
 f_output = codecs.open(opts.output, 'w', 'utf-8')
 start = time.time()
 
-print 'Tagging...'
+print('Tagging...')
 with codecs.open(opts.input, 'r', 'utf-8') as f_input:
     count = 0
     for line in f_input:
@@ -84,7 +84,7 @@ with codecs.open(opts.input, 'r', 'utf-8') as f_input:
             f_output.write('\n')
         count += 1
         if count % 100 == 0:
-            print count
+            print(count)
 
-print '---- %i lines tagged in %.4fs ----' % (count, time.time() - start)
+print(('---- %i lines tagged in %.4fs ----' % (count, time.time() - start)))
 f_output.close()
