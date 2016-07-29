@@ -3,12 +3,15 @@ import re
 import codecs
 import numpy as np
 import theano
-
+import sys
+sys.path.append('../')
+from dimsum import tools
 
 models_path = "./models"
 eval_path = "./evaluation"
 eval_temp = os.path.join(eval_path, "temp")
-eval_script = os.path.join(eval_path, "conlleval")
+#eval_script = os.path.join(eval_path, "conlleval")
+eval_script = os.path.join(eval_path, "dimsumeval.py")
 
 
 def get_name(parameters):
@@ -215,12 +218,9 @@ def create_input(data, parameters, add_label, singletons=None):
         input.append(data['tags'])
     return input
 
-
+# evaluate dimsum
 def evaluate(parameters, f_eval, raw_sentences, parsed_sentences,
              id_to_tag, dictionary_tags):
-    """
-    Evaluate current model using CoNLL script.
-    """
     n_tags = len(id_to_tag)
     predictions = []
     count = np.zeros((n_tags, n_tags), dtype=np.int32)
@@ -244,39 +244,41 @@ def evaluate(parameters, f_eval, raw_sentences, parsed_sentences,
             count[y_real, y_pred] += 1
         predictions.append("")
 
-    # Write predictions to disk and run CoNLL script externally
+    # Write predictions to disk and run evaluation script externally
     eval_id = np.random.randint(1000000, 2000000)
-    output_path = os.path.join(eval_temp, "eval.%i.output" % eval_id)
+    gold_output_path = os.path.join(eval_temp, "eval.gold.%i.output" % eval_id)
+    pred_output_path = os.path.join(eval_temp, "eval.pred.%i.output" % eval_id)
     scores_path = os.path.join(eval_temp, "eval.%i.scores" % eval_id)
-    with codecs.open(output_path, 'w', 'utf8') as f:
-        f.write("\n".join(predictions))
-    os.system("%s < %s > %s" % (eval_script, output_path, scores_path))
+    dimsum_pred_sentences = tools.taggerevalpreds2dimsumpreds(predictions)
+    gold_sentences = [[row[1:-1] for row in raw_sentence] for raw_sentence in raw_sentences]
+    tools.sentencesToTabbedCsv(gold_sentences, gold_output_path)
+    tools.sentencesToTabbedCsv(dimsum_pred_sentences, pred_output_path)
+    os.system("%s -C %s %s > %s" % (eval_script, gold_output_path, pred_output_path, scores_path))
 
-    # CoNLL evaluation results
+    # evaluation results
     eval_lines = [l.rstrip() for l in codecs.open(scores_path, 'r', 'utf8')]
-    for line in eval_lines:
-        print(line)
 
     # Remove temp files
     # os.remove(output_path)
     # os.remove(scores_path)
 
     # Confusion matrix with accuracy for each tag
-    print(("{: >2}{: >7}{: >7}%s{: >9}" % ("{: >7}" * n_tags)).format(
-        "ID", "NE", "Total",
-        *([id_to_tag[i] for i in range(n_tags)] + ["Percent"])
-    ))
-    for i in range(n_tags):
-        print(("{: >2}{: >7}{: >7}%s{: >9}" % ("{: >7}" * n_tags)).format(
-            str(i), id_to_tag[i], str(count[i].sum()),
-            *([count[i][j] for j in range(n_tags)] +
-              ["%.3f" % (count[i][i] * 100. / max(1, count[i].sum()))])
-        ))
+    #print(("{: >2}{: >7}{: >7}%s{: >9}" % ("{: >7}" * n_tags)).format(
+    #    "ID", "Tag", "Total",
+    #    *([id_to_tag[i] for i in range(n_tags)] + ["Percent"])
+    #))
+    #for i in range(n_tags):
+    #    print(("{: >2}{: >7}{: >7}%s{: >9}" % ("{: >7}" * n_tags)).format(
+    #        str(i), id_to_tag[i], str(count[i].sum()),
+    #        *([count[i][j] for j in range(n_tags)] +
+    #          ["%.3f" % (count[i][i] * 100. / max(1, count[i].sum()))])
+    #    ))
 
     # Global accuracy
+    print("Global Accuracy")
     print("%i/%i (%.5f%%)" % (
         count.trace(), count.sum(), 100. * count.trace() / max(1, count.sum())
     ))
 
     # F1 on all entities
-    return float(eval_lines[1].strip().split()[-1])
+    return float(eval_lines[-1].split()[-1].split('=')[-1].replace('%',''))
