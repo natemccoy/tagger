@@ -8,7 +8,7 @@ from utils import iob2, iob_iobes
 def load_sentences(path, lower, zeros):
     """
     Load sentences. A line must contain at least a word and its tag.
-    Sentences are separated by empty lines.
+    Sentences are separated by tabs.
     """
     sentences = []
     sentence = []
@@ -20,7 +20,7 @@ def load_sentences(path, lower, zeros):
                     sentences.append(sentence)
                 sentence = []
         else:
-            word = line.split()
+            word = line.split('\t')
             assert len(word) >= 2
             sentence.append(word)
     if len(sentence) > 0:
@@ -33,7 +33,10 @@ def update_tag_scheme(sentences, tag_scheme):
     """
     Check and update sentences tagging scheme to IOB2.
     Only IOB1 and IOB2 schemes are accepted.
+    If tag scheme is generic, return without modifications
     """
+    if tag_scheme == 'generic':
+        return
     for i, s in enumerate(sentences):
         tags = [w[-1] for w in s]
         # Check that tags are given in the IOB format
@@ -133,6 +136,10 @@ def prepare_dataset(sentences, word_to_id, char_to_id, tag_to_id, lower=False):
         - tag indexes
     """
     def f(x): return x.lower() if lower else x
+    # get most common tag/label 
+    toptag = sorted(tag_to_id, key=lambda tag:tag_to_id[tag])[0]
+    # lookup for tag to id, if inexistent use toptag
+    def g(x): return tag_to_id[x] if x in tag_to_id else tag_to_id[toptag]
     data = []
     for s in sentences:
         str_words = [w[0] for w in s]
@@ -142,7 +149,8 @@ def prepare_dataset(sentences, word_to_id, char_to_id, tag_to_id, lower=False):
         chars = [[char_to_id[c] for c in w if c in char_to_id]
                  for w in str_words]
         caps = [cap_feature(w) for w in str_words]
-        tags = [tag_to_id[w[-1]] for w in s]
+        #tags = [tag_to_id[w[-1]] for w in s]
+        tags = [g(w[-1]) for w in s]
         data.append({
             'str_words': str_words,
             'words': words,
