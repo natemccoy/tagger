@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import os
+import sys
+sys.path.append('../dimsum')
 import numpy as np
 import optparse
 import itertools
@@ -30,7 +32,7 @@ optparser.add_option(
 )
 optparser.add_option(
     "-s", "--tag_scheme", default="iobes",
-    help="Tagging scheme (IOB or IOBES)"
+    help="Tagging scheme (IOB or IOBES or GENERIC)"
 )
 optparser.add_option(
     "-l", "--lower", default="0",
@@ -118,14 +120,14 @@ assert os.path.isfile(opts.dev)
 assert os.path.isfile(opts.test)
 assert parameters['char_dim'] > 0 or parameters['word_dim'] > 0
 assert 0. <= parameters['dropout'] < 1.0
-assert parameters['tag_scheme'] in ['iob', 'iobes']
+assert parameters['tag_scheme'] in ['iob', 'iobes', 'generic']
 assert not parameters['all_emb'] or parameters['pre_emb']
 assert not parameters['pre_emb'] or parameters['word_dim'] > 0
 assert not parameters['pre_emb'] or os.path.isfile(parameters['pre_emb'])
 
 # Check evaluation script / folders
 if not os.path.isfile(eval_script):
-    raise Exception('CoNLL evaluation script not found at "%s"' % eval_script)
+    raise Exception('Evaluation script not found at "%s"' % eval_script)
 if not os.path.exists(eval_temp):
     os.makedirs(eval_temp)
 if not os.path.exists(models_path):
@@ -170,12 +172,15 @@ dico_chars, char_to_id, id_to_char = char_mapping(train_sentences)
 dico_tags, tag_to_id, id_to_tag = tag_mapping(train_sentences)
 
 # Index data
+print("Preparing training data")
 train_data = prepare_dataset(
     train_sentences, word_to_id, char_to_id, tag_to_id, lower
 )
+print("Preparing dev data")
 dev_data = prepare_dataset(
     dev_sentences, word_to_id, char_to_id, tag_to_id, lower
 )
+print("Preparing test data")
 test_data = prepare_dataset(
     test_sentences, word_to_id, char_to_id, tag_to_id, lower
 )
