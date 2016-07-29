@@ -2,7 +2,6 @@
 
 import os
 import sys
-sys.path.append('../dimsum')
 import numpy as np
 import optparse
 import itertools
