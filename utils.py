@@ -4,13 +4,10 @@ import codecs
 import numpy as np
 import theano
 import sys
-sys.path.append('../')
-from dimsum import tools
 
 models_path = "./models"
 eval_path = "./evaluation"
 eval_temp = os.path.join(eval_path, "temp")
-#eval_script = os.path.join(eval_path, "conlleval")
 eval_script = os.path.join(eval_path, "dimsumeval.py")
 
 
@@ -218,6 +215,15 @@ def create_input(data, parameters, add_label, singletons=None):
         input.append(data['tags'])
     return input
 
+# CoNLL style TSV files used for DiMSUM
+def sentencesToTSV(sentences, tsvfilename):
+    with open(tsvfilename,'w+') as tsvfile:
+        for sentence in sentences:
+            for row in sentence:
+                tabbedrow = "\t".join(map(str, row)) + "\n"
+                tsvfile.write(tabbedrow)
+            tsvfile.write("\n")
+
 # evaluate dimsum
 def evaluate(parameters, f_eval, raw_sentences, parsed_sentences,
              id_to_tag, dictionary_tags):
@@ -251,8 +257,8 @@ def evaluate(parameters, f_eval, raw_sentences, parsed_sentences,
     scores_path = os.path.join(eval_temp, "eval.%i.scores" % eval_id)
     dimsum_pred_sentences = tools.taggerevalpreds2dimsumpreds(predictions)
     gold_sentences = [[row[1:-1] for row in raw_sentence] for raw_sentence in raw_sentences]
-    tools.sentencesToTabbedCsv(gold_sentences, gold_output_path)
-    tools.sentencesToTabbedCsv(dimsum_pred_sentences, pred_output_path)
+    sentencesToTSV(gold_sentences, gold_output_path)
+    sentencesToTSV(dimsum_pred_sentences, pred_output_path)
     os.system("%s -C %s %s > %s" % (eval_script, gold_output_path, pred_output_path, scores_path))
 
     # evaluation results
@@ -262,6 +268,8 @@ def evaluate(parameters, f_eval, raw_sentences, parsed_sentences,
     # os.remove(output_path)
     # os.remove(scores_path)
 
+    # CONFUSION MATRIX TO CONFUSING TO VIEW HAR DE HAR HAR
+    # No really too many tags, so just comment it out
     # Confusion matrix with accuracy for each tag
     #print(("{: >2}{: >7}{: >7}%s{: >9}" % ("{: >7}" * n_tags)).format(
     #    "ID", "Tag", "Total",
