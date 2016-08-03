@@ -1,8 +1,8 @@
 #!/bin/bash
 
 PRE_EMB_FILENAME="GoogleNews-vectors-negative300.txt"
-PRE_EMB_PATH="~/data/GOOGLE/$PRE_EMB_FILENAME"
-TRAIN_SCRIPT_PATH="./train.py"
+PRE_EMB_PATH="$HOME/data/GOOGLE/$PRE_EMB_FILENAME"
+TRAIN_SCRIPT_PATH="./train.py --tag_scheme=generic "
 TRAIN_FILES="--train=../data/dimsum16.train.60.train.tagger --dev=../data/dimsum16.train.20.dev.tagger --test=../data/dimsum16.train.20.test.tagger"
 
 function train_models(){
