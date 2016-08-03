@@ -3,6 +3,7 @@
 PRE_EMB_FILENAME="GoogleNews-vectors-negative300.txt"
 PRE_EMB_PATH="~/data/GOOGLE/$PRE_EMB_FILENAME"
 TRAIN_SCRIPT_PATH="./train.py"
+TRAIN_FILES="--train=../data/dimsum16.train.60.train.tagger --dev=../data/dimsum16.train.20.dev.tagger --test=../data/dimsum16.train.20.test.tagger"
 
 function train_models(){
     dropout=(0 0.5)
@@ -27,13 +28,14 @@ function train_models(){
 		    word_lstm_dim="--word_lstm_dim=$word_lstm_dim_n"
 		    dropout_rate="--dropout=$rate"
 		    char_dim="--char_dim=$cdim --char_lstm_dim=$cdim"
-		    echo python -u $TRAIN_SCRIPT_PATH $dropout_rate $char_dim $word_dim $word_lstm_dim \> $outputfn
+		    #echo python -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim \> $outputfn
 		    
-		    #if [ ! -z $pre_emb ]
-		    #then
-		    #	outputfn="preemb_${PRE_EMB_FILENAME/\.txt/}_""$outputfn"
-		    #	echo python -u $TRAIN_SCRIPT_PATH $dropout_rate $word_dim $word_lstm_dim $pre_emb \> $outputfn
-		    #fi
+		    if [ ! -z $pre_emb ]
+		    then
+		    	outputfn="preemb_${PRE_EMB_FILENAME/\.txt/}_""$outputfn"
+		    	echo python -u $TRAIN_SCRIPT_PATH $dropout_rate $char_dim $word_dim $word_lstm_dim $pre_emb \&\> $outputfn
+			python -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim $pre_emb &> $outputfn
+		    fi
 		done
 	    done
 	done
@@ -42,11 +44,3 @@ function train_models(){
 
 train_models
 
-#python -u ./train.py --dropout=0 --char_dim=0 --char_lstm_dim=0 --word_dim=300 --word_lstm_dim=300 > chardim_0_dropout_0_word_dim_300.word_lstm_dim_300.stdout.stderr.output
-#python -u ./train.py --dropout=0 --word_dim=300 --word_lstm_dim=300 --pre_emb=~/data/GOOGLE/GoogleNews-vectors-negative300.txt > preemb_GoogleNews-vectors-negative300_chardim_0_dropout_0_word_dim_300.word_lstm_dim_300.stdout.stderr.output
-#python -u ./train.py --dropout=0 --char_dim=25 --char_lstm_dim=25 --word_dim=300 --word_lstm_dim=300 > chardim_25_dropout_0_word_dim_300.word_lstm_dim_300.stdout.stderr.output
-#python -u ./train.py --dropout=0 --word_dim=300 --word_lstm_dim=300 --pre_emb=~/data/GOOGLE/GoogleNews-vectors-negative300.txt > preemb_GoogleNews-vectors-negative300_chardim_25_dropout_0_word_dim_300.word_lstm_dim_300.stdout.stderr.output
-#python -u ./train.py --dropout=0.5 --char_dim=0 --char_lstm_dim=0 --word_dim=300 --word_lstm_dim=300 > chardim_0_dropout_0.5_word_dim_300.word_lstm_dim_300.stdout.stderr.output
-#python -u ./train.py --dropout=0.5 --word_dim=300 --word_lstm_dim=300 --pre_emb=~/data/GOOGLE/GoogleNews-vectors-negative300.txt > preemb_GoogleNews-vectors-negative300_chardim_0_dropout_0.5_word_dim_300.word_lstm_dim_300.stdout.stderr.output
-#python -u ./train.py --dropout=0.5 --char_dim=25 --char_lstm_dim=25 --word_dim=300 --word_lstm_dim=300 > chardim_25_dropout_0.5_word_dim_300.word_lstm_dim_300.stdout.stderr.output
-#python -u ./train.py --dropout=0.5 --word_dim=300 --word_lstm_dim=300 --pre_emb=~/data/GOOGLE/GoogleNews-vectors-negative300.txt > preemb_GoogleNews-vectors-negative300_chardim_25_dropout_0.5_word_dim_300.word_lstm_dim_300.stdout.stderr.output
