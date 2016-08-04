@@ -50,6 +50,7 @@ function run_train_models(){
 		    echo '#!/bin/bash' > $scriptname
 		    echo source activate py27  >> $scriptname
 		    echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim \&\> $outputfn >> $scriptname
+		    chmod +x $scriptname
 		    qsub_train_script $scriptname
 		    if [ ! -z $pre_emb ]
 		    then
@@ -58,6 +59,7 @@ function run_train_models(){
 			echo '#!/bin/bash' > $scriptname
 			echo source activate py27 >> $scriptname
 		    	echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim $pre_emb \&\> $outputfn >> $scriptname
+			chmod +x $scriptname
 			qsub_train_script $scriptname
 		    fi
 		done
