@@ -57,7 +57,7 @@ function run_train_models(){
 		    	outputfn="preemb_${PRE_EMB_FILENAME/\.txt/}_""$outputfn"
 			echo '#!/bin/bash' > $scriptname
 			echo source activate py27 >> $scriptname
-		    	echo python3 -u $TRAIN_SCRIPT_PATH $dropout_rate $char_dim $word_dim $word_lstm_dim $pre_emb \&\> $outputfn >> $scriptname
+		    	echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim $pre_emb \&\> $outputfn >> $scriptname
 			qsub_train_script $scriptname
 		    fi
 		done
