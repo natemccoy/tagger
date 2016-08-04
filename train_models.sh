@@ -14,7 +14,7 @@ TRAIN_FILES="--train=../data/dimsum16.train.60.train.tagger --dev=../data/dimsum
 # call qsub with fixed parameters and script name
 ##############################################################################
 function qsub_train_script(){
-    echo qsub -l mem=16G,rmem=16G -m bea -M nmmccoy1@sheffield.ac.uk -j y -o "${1/.sh/.qsub.output.txt}" $1
+    qsub -l mem=16G,rmem=16G -m bea -M nmmccoy1@sheffield.ac.uk -j y -o "${1/.sh/.qsub.output.txt}" $1
 }
 
 ##############################################################################
