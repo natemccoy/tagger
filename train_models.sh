@@ -23,47 +23,32 @@ function qsub_train_script(){
 # generates scripts then calls function to queue script with qsub
 ##############################################################################
 function run_train_models(){
-    dropout=(0 0.25 0.5)
-    char=(5 25)
-    i=0
-    for rate in "${dropout[@]}"
-    do 
-	for cdim in "${char[@]}"
+    #char=(5 10 15 20 25)
+    char=(25)
+    #char_dim=(5 10 15 20 25)
+    wlds=(25 50 75 400 500 600)
+    i=54
+    rate=0.5
+    pre_emb="--pre_emb=$PRE_EMB_PATH"
+    word_dim_n=300
+    for cdim in "${char[@]}"
+    do
+	for word_lstm_dim_n in "${wlds[@]}"
 	do
-	    for word_dim_n in $(seq 100 100 300)
-	    do 
-		pre_emb=
-		if [[ $word_dim_n -eq 300 ]]
-		then
-		    pre_emb="--pre_emb=$PRE_EMB_PATH"
-		fi
-		for word_lstm_dim_n in $(seq 100 100 300)
-		do
-		    i=$(($i+1))
-		    outputfn="chardim_""$cdim""_dropout_""$rate""_word_dim_""$word_dim_n"".word_lstm_dim_""$word_lstm_dim_n"".$i.stdout.stderr.output"
-		    word_dim="--word_dim=$word_dim_n"
-		    word_lstm_dim="--word_lstm_dim=$word_lstm_dim_n"
-		    dropout_rate="--dropout=$rate"
-		    char_dim="--char_dim=$cdim --char_lstm_dim=$cdim"
-		    scriptprefix="trainmodel_test_"
-		    scriptname="$scriptprefix""$i.sh"
-		    echo '#!/bin/bash' > $scriptname
-		    echo source activate py27  >> $scriptname
-		    echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim \&\> $outputfn >> $scriptname
-		    chmod +x $scriptname
-		    qsub_train_script $scriptname
-		    if [ ! -z $pre_emb ]
-		    then
-			scriptname="$scriptprefix""preemb_""$i.sh"
-		    	outputfn="preemb_${PRE_EMB_FILENAME/\.txt/}_""$outputfn"
-			echo '#!/bin/bash' > $scriptname
-			echo source activate py27 >> $scriptname
-		    	echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim $pre_emb \&\> $outputfn >> $scriptname
-			chmod +x $scriptname
-			qsub_train_script $scriptname
-		    fi
-		done
-	    done
+	    i=$(($i+1))
+	    outputfn="chardim_""$cdim""_dropout_""$rate""_word_dim_""$word_dim_n"".word_lstm_dim_""$word_lstm_dim_n"".$i.stdout.stderr.output"
+	    word_dim="--word_dim=$word_dim_n"
+	    word_lstm_dim="--word_lstm_dim=$word_lstm_dim_n"
+	    dropout_rate="--dropout=$rate"
+	    char_dim="--char_dim=$cdim --char_lstm_dim=$cdim"
+	    scriptprefix="trainmodel_test_"
+	    scriptname="$scriptprefix""$i.sh"
+	    echo '#!/bin/bash' > $scriptname
+	    echo source activate py27  >> $scriptname
+	    echo source activate py27  >> $scriptname
+	    echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim \&\> $outputfn >> $scriptname
+	    chmod +x $scriptname
+	    qsub_train_script $scriptname
 	done
     done
 }
