@@ -14,7 +14,7 @@ TRAIN_FILES="--train=../data/dimsum16.train.60.train.tagger --dev=../data/dimsum
 # call qsub with fixed parameters and script name
 ##############################################################################
 function qsub_train_script(){
-    qsub -l mem=16G,rmem=16G -m bea -M nmmccoy1@sheffield.ac.uk -j y -o "${1/.sh/.qsub.output.txt}" $1
+    qsub -l mem=16G,rmem=16G,h_rt=48:00:00 -m bea -M nmmccoy1@sheffield.ac.uk -j y -o "${1/.sh/.qsub.output.txt}" $1
 }
 
 ##############################################################################
@@ -23,30 +23,28 @@ function qsub_train_script(){
 # generates scripts then calls function to queue script with qsub
 ##############################################################################
 function run_train_models(){
-    #char=(5 10 15 20 25)
-    char=(25)
-    #char_dim=(5 10 15 20 25)
-    wlds=(25 50 75 400 500 600)
-    i=54
+    char=(10 20 30 40)
+    i=66
     rate=0.5
     pre_emb="--pre_emb=$PRE_EMB_PATH"
     word_dim_n=300
+    word_lstm_dim_n=100
     for cdim in "${char[@]}"
     do
-	for word_lstm_dim_n in "${wlds[@]}"
+	for cldim in "${char[@]}"
 	do
 	    i=$(($i+1))
-	    outputfn="chardim_""$cdim""_dropout_""$rate""_word_dim_""$word_dim_n"".word_lstm_dim_""$word_lstm_dim_n"".$i.stdout.stderr.output"
+	    outputfn="chardim_""$cdim""_charlstmdim_""$cldim""_dropout_""$rate""_word_dim_""$word_dim_n"".word_lstm_dim_""$word_lstm_dim_n"".$i.stdout.stderr.output"
 	    word_dim="--word_dim=$word_dim_n"
 	    word_lstm_dim="--word_lstm_dim=$word_lstm_dim_n"
 	    dropout_rate="--dropout=$rate"
-	    char_dim="--char_dim=$cdim --char_lstm_dim=$cdim"
-	    scriptprefix="trainmodel_test_"
+	    char_dim="--char_dim=$cdim --char_lstm_dim=$cldim"
+	    scriptprefix="trainmodel_test_preemb_"
 	    scriptname="$scriptprefix""$i.sh"
 	    echo '#!/bin/bash' > $scriptname
 	    echo source activate py27  >> $scriptname
 	    echo source activate py27  >> $scriptname
-	    echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim \&\> $outputfn >> $scriptname
+	    echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $pre_emb $dropout_rate $char_dim $word_dim $word_lstm_dim \&\> $outputfn >> $scriptname
 	    chmod +x $scriptname
 	    qsub_train_script $scriptname
 	done
