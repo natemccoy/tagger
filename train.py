@@ -37,10 +37,10 @@ optparser.add_option(
     "-l", "--lower", default="0",
     type='int', help="Lowercase words (this will not affect character inputs)"
 )
-optparser.add_option(
-    "-z", "--zeros", default="0",
-    type='int', help="Replace digits with 0"
-)
+#optparser.add_option(
+#    "-z", "--zeros", default="0",
+#    type='int', help="Replace digits with 0"
+#)
 optparser.add_option(
     "-c", "--char_dim", default="25",
     type='int', help="Char embedding dimension"
@@ -98,7 +98,7 @@ opts = optparser.parse_args()[0]
 # Parse parameters
 parameters = OrderedDict()
 parameters['tag_scheme'] = opts.tag_scheme
-parameters['lower'] = opts.lower == 1
+parameters['lower'] = 0 #opts.lower == 1
 parameters['zeros'] = opts.zeros == 1
 parameters['char_dim'] = opts.char_dim
 parameters['char_lstm_dim'] = opts.char_lstm_dim
