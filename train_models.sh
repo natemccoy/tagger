@@ -14,6 +14,7 @@ TRAIN_FILES="--train=../data/dimsum16.train.60.train.tagger --dev=../data/dimsum
 # call qsub with fixed parameters and script name
 ##############################################################################
 function qsub_train_script(){
+    #cat $1
     qsub -l mem=16G,rmem=16G -m bea -M nmmccoy1@sheffield.ac.uk -j y -o "${1/.sh/.qsub.output.txt}" $1
 }
 
@@ -23,47 +24,37 @@ function qsub_train_script(){
 # generates scripts then calls function to queue script with qsub
 ##############################################################################
 function run_train_models(){
-    dropout=(0 0.25 0.5)
-    char=(5 25)
-    i=0
-    for rate in "${dropout[@]}"
-    do 
-	for cdim in "${char[@]}"
+    bools=(0 1)
+    i=82 # script suffix integer
+    # fixed values for training
+    rate=0.5
+    word_dim_n=300
+    word_lstm_dim_n=100
+    char_dim_n=10
+    char_lstm_dim_n=20
+    # fixed argument strings for train.py
+    pre_emb="--pre_emb=$PRE_EMB_PATH"
+    word_dim="--word_dim=$word_dim_n"
+    word_lstm_dim="--word_lstm_dim=$word_lstm_dim_n"
+    dropout_rate="--dropout=$rate"
+    char_dim="--char_dim=$char_dim_n"
+    char_lstm_dim="--char_lstm_dim=$char_lstm_dim_n"
+
+    for lower_bool in "${bools[@]}"
+    do
+	for zeros_bool in "${bools[@]}"
 	do
-	    for word_dim_n in $(seq 100 100 300)
-	    do 
-		pre_emb=
-		if [[ $word_dim_n -eq 300 ]]
-		then
-		    pre_emb="--pre_emb=$PRE_EMB_PATH"
-		fi
-		for word_lstm_dim_n in $(seq 100 100 300)
-		do
-		    i=$(($i+1))
-		    outputfn="chardim_""$cdim""_dropout_""$rate""_word_dim_""$word_dim_n"".word_lstm_dim_""$word_lstm_dim_n"".$i.stdout.stderr.output"
-		    word_dim="--word_dim=$word_dim_n"
-		    word_lstm_dim="--word_lstm_dim=$word_lstm_dim_n"
-		    dropout_rate="--dropout=$rate"
-		    char_dim="--char_dim=$cdim --char_lstm_dim=$cdim"
-		    scriptprefix="trainmodel_test_"
-		    scriptname="$scriptprefix""$i.sh"
-		    echo '#!/bin/bash' > $scriptname
-		    echo source activate py27  >> $scriptname
-		    echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim \&\> $outputfn >> $scriptname
-		    chmod +x $scriptname
-		    qsub_train_script $scriptname
-		    if [ ! -z $pre_emb ]
-		    then
-			scriptname="$scriptprefix""preemb_""$i.sh"
-		    	outputfn="preemb_${PRE_EMB_FILENAME/\.txt/}_""$outputfn"
-			echo '#!/bin/bash' > $scriptname
-			echo source activate py27 >> $scriptname
-		    	echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $dropout_rate $char_dim $word_dim $word_lstm_dim $pre_emb \&\> $outputfn >> $scriptname
-			chmod +x $scriptname
-			qsub_train_script $scriptname
-		    fi
-		done
-	    done
+	    i=$(($i+1))
+	    outputfn="zeros_""$zeros_bool""_lower_""$lower_bool""_chardim_""$char_dim_n""_charlstmdim_""$char_lstm_dim_n""_dropout_""$rate""_word_dim_""$word_dim_n"".word_lstm_dim_""$word_lstm_dim_n"".$i.stdout.stderr.output"
+	    bool_args="--lower=$lower_bool --zeros=$zeros_bool"
+	    scriptprefix="trainmodel_test_preemb_"
+	    scriptname="$scriptprefix""$i.sh"
+	    echo '#!/bin/bash' > $scriptname
+	    echo source activate py27  >> $scriptname
+	    echo source activate py27  >> $scriptname
+	    echo python3 -u $TRAIN_SCRIPT_PATH $TRAIN_FILES $bool_args $pre_emb $dropout_rate $char_dim $char_lstm_dim $word_dim $word_lstm_dim \&\> $outputfn >> $scriptname
+	    chmod +x $scriptname
+	    qsub_train_script $scriptname
 	done
     done
 }
