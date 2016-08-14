@@ -24,14 +24,20 @@ function qsub_train_script(){
 # generates scripts then calls function to queue script with qsub
 ##############################################################################
 function run_train_models(){
+    lr_methods=('sgd' 'sgdmomentum' 'adagrad' 'adadelta' 'rmsprop')
+    lr_vals=('.005' '.002' '.001')
     bools=(0 1)
-    i=82 # script suffix integer
+    i=91 # script suffix integer
     # fixed values for training
     rate=0.5
     word_dim_n=300
     word_lstm_dim_n=100
     char_dim_n=10
     char_lstm_dim_n=20
+    lower_bool=0
+    word_bidirect_bool=1
+    char_bidirect_bool=1
+    crf_bool=1
     # fixed argument strings for train.py
     pre_emb="--pre_emb=$PRE_EMB_PATH"
     word_dim="--word_dim=$word_dim_n"
@@ -39,14 +45,15 @@ function run_train_models(){
     dropout_rate="--dropout=$rate"
     char_dim="--char_dim=$char_dim_n"
     char_lstm_dim="--char_lstm_dim=$char_lstm_dim_n"
+    bool_args="--crf=$crf_bool --lower=$lower_bool --word_bidirect=$word_bidirect_bool --char_bidirect=$char_bidirect_bool "
 
-    for lower_bool in "${bools[@]}"
+    for lr_method in "${lr_methods[@]}"
     do
-	for zeros_bool in "${bools[@]}"
+	for lr_val in "${lr_vals[@]}"
 	do
 	    i=$(($i+1))
-	    outputfn="zeros_""$zeros_bool""_lower_""$lower_bool""_chardim_""$char_dim_n""_charlstmdim_""$char_lstm_dim_n""_dropout_""$rate""_word_dim_""$word_dim_n"".word_lstm_dim_""$word_lstm_dim_n"".$i.stdout.stderr.output"
-	    bool_args="--lower=$lower_bool --zeros=$zeros_bool"
+	    lr_arg="$lr_method""-""lr_""$lr_val"
+	    outputfn="lr_method_""$lr_arg""_crf_""$crf_bool""_char_bidirect_""$char_bidirect_bool""_word_bidirect_""$word_bidirect_bool""_lower_""$lower_bool""_chardim_""$char_dim_n""_charlstmdim_""$char_lstm_dim_n""_dropout_""$rate""_word_dim_""$word_dim_n"".word_lstm_dim_""$word_lstm_dim_n"".$i.stdout.stderr.output"
 	    scriptprefix="trainmodel_test_preemb_"
 	    scriptname="$scriptprefix""$i.sh"
 	    echo '#!/bin/bash' > $scriptname
