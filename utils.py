@@ -267,22 +267,8 @@ def evaluate(parameters, f_eval, raw_sentences, parsed_sentences,
     eval_lines = [l.rstrip() for l in codecs.open(scores_path, 'r', 'utf8')]
 
     # Remove temp files
-    # os.remove(output_path)
-    # os.remove(scores_path)
-
-    # CONFUSION MATRIX TO CONFUSING TO VIEW HAR DE HAR HAR
-    # No really too many tags, so just comment it out
-    # Confusion matrix with accuracy for each tag
-    #print(("{: >2}{: >7}{: >7}%s{: >9}" % ("{: >7}" * n_tags)).format(
-    #    "ID", "Tag", "Total",
-    #    *([id_to_tag[i] for i in range(n_tags)] + ["Percent"])
-    #))
-    #for i in range(n_tags):
-    #    print(("{: >2}{: >7}{: >7}%s{: >9}" % ("{: >7}" * n_tags)).format(
-    #        str(i), id_to_tag[i], str(count[i].sum()),
-    #        *([count[i][j] for j in range(n_tags)] +
-    #          ["%.3f" % (count[i][i] * 100. / max(1, count[i].sum()))])
-    #    ))
+    os.remove(output_path)
+    os.remove(scores_path)
 
     # Global accuracy
     print("Global Accuracy")
