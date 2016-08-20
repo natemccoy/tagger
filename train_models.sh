@@ -6,7 +6,7 @@
 PRE_EMB_FILENAME="gnvn300.txt"
 PRE_EMB_PATH="$HOME/data/GOOGLE/$PRE_EMB_FILENAME"
 TRAIN_SCRIPT_PATH="./train.py --tag_scheme=generic "
-TRAIN_FILES="--train=../data/dimsum16.train.80.train.tagger --dev=../data/dimsum16.train.20.dev.tagger --test=../data/dimsum16.test.tagger"
+TRAIN_FILES="--train=dimsum16.train.80.train.tagger --dev=dimsum16.train.20.dev.tagger --test=dimsum16.test.tagger"
 
 ##############################################################################
 # qsub_train_script

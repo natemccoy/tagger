@@ -4,7 +4,6 @@ import codecs
 import numpy as np
 import theano
 import sys
-sys.path.append('../')
 from dimsum import tools
 
 models_path = "./models"

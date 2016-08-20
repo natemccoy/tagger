@@ -37,10 +37,10 @@ optparser.add_option(
     "-l", "--lower", default="0",
     type='int', help="Lowercase words (this will not affect character inputs)"
 )
-#optparser.add_option(
-#    "-z", "--zeros", default="0",
-#    type='int', help="Replace digits with 0"
-#)
+optparser.add_option(
+    "-z", "--zeros", default="0",
+    type='int', help="Replace digits with 0"
+)
 optparser.add_option(
     "-c", "--char_dim", default="25",
     type='int', help="Char embedding dimension"
