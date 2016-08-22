@@ -266,7 +266,8 @@ def evaluate(parameters, f_eval, raw_sentences, parsed_sentences,
     eval_lines = [l.rstrip() for l in codecs.open(scores_path, 'r', 'utf8')]
 
     # Remove temp files
-    os.remove(output_path)
+    os.remove(gold_output_path)
+    os.remove(pred_output_path)
     os.remove(scores_path)
 
     # Global accuracy
