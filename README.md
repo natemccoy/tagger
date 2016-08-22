@@ -16,6 +16,12 @@ Install Anaconda Python 3.4 as your default installation and run `conda create -
 
 The additional shell scripts provided `activate` the `py27` environment for training and testing.  
 
+## Data 
+
+All the data for the DiMSUM tagger is modified from the dimsum-data repository, the modified file [readme can be viewed in the main dissertation repository](https://github.com/natemccoy/dissertation2016/blob/master/code/data/README.md).
+
+It explains the way the data was modified for use with the tagger.
+
 ## Usage
 
 ### Tag sentences
