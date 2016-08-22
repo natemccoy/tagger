@@ -3,6 +3,7 @@
 ##############################################################################
 # Globals
 ##############################################################################
+EMAIL='email@domain.com'
 PRE_EMB_FILENAME="gnvn300.txt"
 PRE_EMB_PATH="$HOME/data/GOOGLE/$PRE_EMB_FILENAME"
 TRAIN_SCRIPT_PATH="./train.py --tag_scheme=generic "
@@ -14,8 +15,7 @@ TRAIN_FILES="--train=dimsum16.train.80.train.tagger --dev=dimsum16.train.20.dev.
 # call qsub with fixed parameters and script name
 ##############################################################################
 function qsub_train_script(){
-    #cat $1
-    qsub -l mem=32G,rmem=32G -m bea -M nmmccoy1@sheffield.ac.uk -j y -o "${1/.sh/.qsub.output.txt}" $1
+    qsub -l mem=32G,rmem=32G -m bea -M "$EMAIL" -j y -o "${1/.sh/.qsub.output.txt}" $1
 }
 
 ##############################################################################
