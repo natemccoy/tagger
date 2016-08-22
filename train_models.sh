@@ -15,7 +15,7 @@ TRAIN_FILES="--train=dimsum16.train.80.train.tagger --dev=dimsum16.train.20.dev.
 ##############################################################################
 function qsub_train_script(){
     #cat $1
-    qsub -l mem=16G,rmem=16G -m bea -M nmmccoy1@sheffield.ac.uk -j y -o "${1/.sh/.qsub.output.txt}" $1
+    qsub -l mem=32G,rmem=32G -m bea -M nmmccoy1@sheffield.ac.uk -j y -o "${1/.sh/.qsub.output.txt}" $1
 }
 
 ##############################################################################
