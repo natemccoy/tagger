@@ -16,6 +16,22 @@ Install Anaconda Python 3.4 as your default installation and run `conda create -
 
 The additional shell scripts provided `activate` the `py27` environment for training and testing.  
 
+Pretrained word vectors extracted from `GoogleNews-vectors-negative300.bin.gz` are expected to be in `~/data/GOOGLE/gnvn300.txt`
+The original file can be obtained from https://code.google.com/archive/p/word2vec/
+
+To extract the file from the binary format use the `gensim` package. It can be done in the following way:
+
+    #!/usr/bin/env python
+     
+    print("importing gensim")
+    import gensim
+    print("making word2vec model")
+    w2v = gensim.models.Word2Vec()
+    fn="GoogleNews-vectors-negative300.bin"
+    print("loading word2vec with",fn, "please wait...")
+    model = w2v.load_word2vec_format(fn, binary=True)
+    model.save_word2vec_format('gnvn300.txt', binary=False)
+
 ## Data 
 
 All the data for the DiMSUM tagger is modified from the dimsum-data repository, the modified file [readme can be viewed in the main dissertation repository](https://github.com/natemccoy/dissertation2016/blob/master/code/data/README.md).
